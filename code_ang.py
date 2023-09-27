@@ -4,8 +4,6 @@ import utils.csv_settings as utils_csv
 import cv2
 import mediapipe as mp
 import numpy as np
-import csv
-
 
 
 mp_drawing = mp.solutions.drawing_utils
@@ -56,27 +54,22 @@ def desenha_landmarks(image, landmarks, connections):
                              mp_drawing.DrawingSpec(color=(245, 66, 280), thickness=2, circle_radius=2))
 
 
-def escreve_angulo_csv(csv_writer, frame_count, angle):
-    """Escreve o frame e o ângulo no arquivo CSV."""
-
-    csv_writer.writerow([frame_count, angle])
-
-
 def main():
     """Função principal do programa."""
 
-    FILENAME_CSV = 'angles'
-    FILENAME_VIDEO = 'placeholder'
-
-    FOLDER_VIDEO_PATH = 'video_test.mp4'
     FOLDER_IMAGE_PATH = 'frame_images'
+    IMPORT_NAME_VIDEO = 'video_test.mp4'
+    
+    OUT_FILENAME_CSV = 'angles'
+    OUT_FILENAME_VIDEO = 'mulher'
 
-    cap = utils_video.importar_video(FOLDER_VIDEO_PATH)
-
-    csv_file = utils_csv.criar_csv(FILENAME_CSV)
+    csv_file = utils_csv.create_csv(OUT_FILENAME_CSV)
 
     frame_count = 0
+    cap = utils_video.importar_video(IMPORT_NAME_VIDEO)
     
+    utils_video.remove_files()
+
     while cap.isOpened():
         ret, frame = cap.read()
 
@@ -102,7 +95,7 @@ def main():
             angle = calculo_angulo(shoulder, elbow, wrist)
 
             # Escreve o frame e o ângulo no arquivo CSV.
-            utils_csv.write_angulo(csv_file, frame_count, angle, FILENAME_CSV)
+            utils_csv.write_csv_ang(csv_file, frame_count, angle, OUT_FILENAME_CSV)
 
             # Desenha os pontos de referência do corpo na imagem.
 
@@ -113,7 +106,7 @@ def main():
     
         desenha_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        utils_video.frames_from_video(frame, FOLDER_IMAGE_PATH, FILENAME_VIDEO, frame_count)
+        utils_video.frames_from_video(frame, frame_count, OUT_FILENAME_VIDEO, FOLDER_IMAGE_PATH)
 
         cv2.imshow('Imagem WebCam', frame)
 

@@ -45,7 +45,7 @@ def importar_webcam():
   return webcam
 
 
-def frames_from_video(frame, folderfile, filename, frame_count):
+def frames_from_video(frame, frame_count, filename, folderfile='frame_images'):
   """
   Gera fotos a cada um segundo de um vídeo.
 
@@ -70,8 +70,9 @@ def remove_files(caminho_pasta = 'frame_images/'):
 
     # Percorre a lista de arquivos
     for arquivo in arquivos:
-        # Remove o arquivo
-        os.remove(os.path.join(caminho_pasta, arquivo))
+        # Remove o arquivo JPG
+        if arquivo.endswith(".jpg"):
+          os.remove(os.path.join(caminho_pasta, arquivo))
 
 # # Exemplo de uso.
 # caminho_do_arquivo = './sample_videos/video_test.mp4'
