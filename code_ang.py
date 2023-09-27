@@ -1,3 +1,5 @@
+import utils.video_settings as utils
+
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -61,7 +63,12 @@ def escreve_angulo_csv(csv_writer, frame_count, angle):
 def main():
     """Função principal do programa."""
 
-    cap = cv2.VideoCapture('video_manager/video_test.mp4')
+    VIDEO_NAME = 'placeholder'
+    FOLDER_VIDEO_PATH = 'sample_videos/video_test.mp4'
+    FOLDER_IMAGE_PATH = 'frame_images'
+    cap = utils.importar_video(FOLDER_VIDEO_PATH)
+
+    fotos = []
 
     # Abre o arquivo CSV para escrita
     with open('angles.csv', mode='w', newline='') as csvfile:
@@ -102,8 +109,10 @@ def main():
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
             except:
                 pass
-
+        
             desenha_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            utils.frames_from_video(frame, VIDEO_NAME, FOLDER_IMAGE_PATH)
 
             cv2.imshow('Imagem WebCam', frame)
 

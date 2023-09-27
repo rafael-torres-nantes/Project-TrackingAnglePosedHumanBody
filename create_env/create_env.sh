@@ -1,6 +1,3 @@
-python -m venv env
-pip install numpy
-pip install mediapipe
-pip install opencv-python
+python -m venv .env
 
-source env/bin/activate
+source .env/bin/activate
