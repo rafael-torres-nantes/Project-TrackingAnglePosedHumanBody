@@ -1,0 +1,6 @@
+name: fisio
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - open-cv
