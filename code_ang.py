@@ -65,14 +65,18 @@ def escreve_angulo_csv(csv_writer, frame_count, angle):
 def main():
     """Função principal do programa."""
 
-    VIDEO_NAME = 'placeholder'
-    FOLDER_VIDEO_PATH = 'sample_videos/video_test.mp4'
+    FILENAME_CSV = 'angles'
+    FILENAME_VIDEO = 'placeholder'
+
+    FOLDER_VIDEO_PATH = 'video_test.mp4'
     FOLDER_IMAGE_PATH = 'frame_images'
+
     cap = utils_video.importar_video(FOLDER_VIDEO_PATH)
 
-    csv_file = utils_csv.criar_csv()
+    csv_file = utils_csv.criar_csv(FILENAME_CSV)
 
     frame_count = 0
+    
     while cap.isOpened():
         ret, frame = cap.read()
 
@@ -98,7 +102,7 @@ def main():
             angle = calculo_angulo(shoulder, elbow, wrist)
 
             # Escreve o frame e o ângulo no arquivo CSV.
-            utils_csv.write_angulo(csv_file, frame_count, angle)
+            utils_csv.write_angulo(csv_file, frame_count, angle, FILENAME_CSV)
 
             # Desenha os pontos de referência do corpo na imagem.
 
@@ -109,7 +113,7 @@ def main():
     
         desenha_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        utils_video.frames_from_video(frame, FOLDER_IMAGE_PATH, VIDEO_NAME, frame_count)
+        utils_video.frames_from_video(frame, FOLDER_IMAGE_PATH, FILENAME_VIDEO, frame_count)
 
         cv2.imshow('Imagem WebCam', frame)
 
@@ -120,7 +124,6 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     main()

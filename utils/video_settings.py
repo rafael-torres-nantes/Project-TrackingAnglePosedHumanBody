@@ -1,7 +1,8 @@
+import os
 import cv2
 import time
 
-def importar_video(caminho_do_arquivo):
+def importar_video(filename):
   """
   Importa um vídeo de algum diretório.
 
@@ -13,14 +14,35 @@ def importar_video(caminho_do_arquivo):
   """
 
   # Abre o arquivo de vídeo no modo de leitura.
-  video_clip = cv2.VideoCapture(caminho_do_arquivo)
+  video_clip = cv2.VideoCapture(f'sample_videos/{filename}')
 
   # Verifica se o arquivo foi aberto com sucesso.
   if not video_clip.isOpened():
-    raise FileNotFoundError(f"O arquivo '{caminho_do_arquivo}' não foi encontrado.")
+    raise FileNotFoundError(f"O arquivo '{filename}' não foi encontrado.")
 
   # Retorna o objeto VideoFileClip.
   return video_clip
+
+def importar_webcam():
+  """
+  Importa um vídeo de algum diretório.
+
+  Args:
+    caminho_do_arquivo: O caminho completo do arquivo de vídeo.
+
+  Returns:
+    Um objeto VideoFileClip da biblioteca OpenCV.
+  """
+
+  # Abre o arquivo de vídeo no modo de leitura.
+  webcam = cv2.VideoCapture(0)
+
+  # Verifica se o arquivo foi aberto com sucesso.
+  if not webcam.isOpened():
+    raise FileNotFoundError(f"OWebcam não foi encontrada.")
+
+  # Retorna o objeto VideoFileClip.
+  return webcam
 
 
 def frames_from_video(frame, folderfile, filename, frame_count):
@@ -39,6 +61,17 @@ def frames_from_video(frame, folderfile, filename, frame_count):
   
   time.sleep(0.01)
 
+
+def remove_files(caminho_pasta = 'frame_images/'):
+    """Remove todos os arquivos de uma pasta."""
+
+    # Obtém uma lista de todos os arquivos na pasta
+    arquivos = os.listdir(caminho_pasta)
+
+    # Percorre a lista de arquivos
+    for arquivo in arquivos:
+        # Remove o arquivo
+        os.remove(os.path.join(caminho_pasta, arquivo))
 
 # # Exemplo de uso.
 # caminho_do_arquivo = './sample_videos/video_test.mp4'

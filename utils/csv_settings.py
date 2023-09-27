@@ -1,17 +1,17 @@
 import pandas as pd
 
-def criar_csv():
+def criar_csv(filename = 'output'):
 
     # Cria um DataFrame com as colunas "Frame" e "Angle"
     csv_file = pd.DataFrame({"Frame": [], "Angle": []})
 
     # Escreve o cabeçalho do DataFrame no arquivo CSV
-    csv_file.to_csv("angles1.csv", index=False)
+    csv_file.to_csv(f"{filename}.csv", index=False)
 
     return csv_file
 
 
-def write_angulo(csv_file, frame_count, angle):
+def write_angulo(csv_file, frame_count, angle, filename='output'):
     """Escreve o frame e o ângulo no DataFrame."""
 
     # Adiciona uma nova linha ao DataFrame
@@ -19,4 +19,4 @@ def write_angulo(csv_file, frame_count, angle):
     csv_file['Frame'].astype(int)
 
     # Atualiza o DataFrame no arquivo CSV
-    csv_file.to_csv("angles1.csv", index=False)
+    csv_file.to_csv(f"{filename}.csv", index=False)
