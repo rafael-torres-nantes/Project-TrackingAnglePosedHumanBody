@@ -1,10 +1,6 @@
 import cv2
 import time
 
-count = 0
-
-PlaceHolder = "PlaceHolder"
-
 def importar_video(caminho_do_arquivo):
   """
   Importa um vídeo de algum diretório.
@@ -27,7 +23,7 @@ def importar_video(caminho_do_arquivo):
   return video_clip
 
 
-def frames_from_video(frame, pasta, intervalo = 0.01):
+def frames_from_video(frame, folderfile, filename, frame_count):
   """
   Gera fotos a cada um segundo de um vídeo.
 
@@ -37,14 +33,11 @@ def frames_from_video(frame, pasta, intervalo = 0.01):
 
   Returns:
     Uma lista de imagens.
-  """
-  global count
-  
+  """  
   # Salva a foto na pasta especificada.
-  cv2.imwrite(f"{pasta}/{PlaceHolder}{count}.jpg", frame)
-  count += 1
+  cv2.imwrite(f"{folderfile}/{filename}__{frame_count}.jpg", frame)
   
-  time.sleep(intervalo)
+  time.sleep(0.01)
 
 
 # # Exemplo de uso.
