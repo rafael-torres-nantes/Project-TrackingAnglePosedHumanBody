@@ -1,4 +1,4 @@
-# Fisioterapia 3D - PET Computação
+# Project - Tracking Angle and Human Pose
 
 ## Criar Ambiente de Desenvolvimento 
 
