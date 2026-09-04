@@ -1,4 +1,6 @@
 .env
+__pycache__/
+*.pyc
 angles*.csv
 frame_images/*.jpg
 sample_videos/*.mp4

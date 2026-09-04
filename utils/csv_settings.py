@@ -16,7 +16,7 @@ def write_csv_ang(csv_file, frame_count, angle, filename='output'):
 
     # Adiciona uma nova linha ao DataFrame
     csv_file.loc[len(csv_file)] = [frame_count, angle]
-    csv_file['Frame'].astype(int)
+    csv_file['Frame'] = csv_file['Frame'].astype(int)
 
     # Atualiza o DataFrame no arquivo CSV
     csv_file.to_csv(f"{filename}.csv", index=False)

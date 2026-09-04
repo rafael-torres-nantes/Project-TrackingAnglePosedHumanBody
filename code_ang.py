@@ -31,14 +31,13 @@ def calculo_angulo(shoulder, elbow, wrist):
     return angle_degrees
 
 
-def processa_frame(image):
+def processa_frame(image, pose):
     """Processa um frame de vídeo e retorna os pontos de referência do corpo."""
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image.flags.writeable = False
 
-    with mp_pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7) as pose:
-        results = pose.process(image)
+    results = pose.process(image)
 
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -51,7 +50,7 @@ def desenha_landmarks(image, landmarks, connections):
 
     mp_drawing.draw_landmarks(image, landmarks, connections,
                              mp_drawing.DrawingSpec(color=(245, 117, 66), thickness=2, circle_radius=2),
-                             mp_drawing.DrawingSpec(color=(245, 66, 280), thickness=2, circle_radius=2))
+                             mp_drawing.DrawingSpec(color=(245, 66, 230), thickness=2, circle_radius=2))
 
 
 def main():
@@ -67,53 +66,55 @@ def main():
 
     frame_count = 0
     cap = utils_video.importar_video(IMPORT_NAME_VIDEO)
-    
+
     utils_video.remove_files()
 
-    while cap.isOpened():
-        ret, frame = cap.read()
+    min_visibility = 0.5
 
-        if not ret:
-            break
+    with mp_pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7) as pose:
+        while cap.isOpened():
+            ret, frame = cap.read()
 
-        results = processa_frame(frame)
-        try:
+            if not ret:
+                break
 
-            landmarks = results.pose_landmarks.landmark
+            results = processa_frame(frame, pose)
+            try:
+                landmarks = results.pose_landmarks.landmark
 
-            # Calcula o ângulo entre o ombro, cotovelo e punho.
-            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y,
-                        landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].z]
-            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y, 
-                        landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].z]
-            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-                        landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y,
-                        landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].z]
+                shoulder_lm = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value]
+                elbow_lm = landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value]
+                wrist_lm = landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value]
 
-            angle = calculo_angulo(shoulder, elbow, wrist)
+                if min(shoulder_lm.visibility, elbow_lm.visibility, wrist_lm.visibility) < min_visibility:
+                    raise ValueError("braço esquerdo fora de quadro ou oculto")
 
-            # Escreve o frame e o ângulo no arquivo CSV.
-            utils_csv.write_csv_ang(csv_file, frame_count, angle, OUT_FILENAME_CSV)
+                # Calcula o ângulo entre o ombro, cotovelo e punho.
+                shoulder = [shoulder_lm.x, shoulder_lm.y, shoulder_lm.z]
+                elbow = [elbow_lm.x, elbow_lm.y, elbow_lm.z]
+                wrist = [wrist_lm.x, wrist_lm.y, wrist_lm.z]
 
-            # Desenha os pontos de referência do corpo na imagem.
+                angle = calculo_angulo(shoulder, elbow, wrist)
 
-            cv2.putText(frame, str(angle), tuple(np.multiply(elbow, [640, 480]).astype(int)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
-        except:
-            pass
-    
-        desenha_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+                # Escreve o frame e o ângulo no arquivo CSV.
+                utils_csv.write_csv_ang(csv_file, frame_count, angle, OUT_FILENAME_CSV)
 
-        utils_video.frames_from_video(frame, frame_count, OUT_FILENAME_VIDEO, FOLDER_IMAGE_PATH)
+                # Desenha o ângulo na imagem.
+                cv2.putText(frame, str(angle), tuple(np.multiply(elbow, [640, 480]).astype(int)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+            except (AttributeError, ValueError) as exc:
+                print(f"Frame {frame_count}: ângulo não calculado ({exc}).")
 
-        cv2.imshow('Imagem WebCam', frame)
+            desenha_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        if cv2.waitKey(10) & 0XFF == ord('q'):
-            break
+            utils_video.frames_from_video(frame, frame_count, OUT_FILENAME_VIDEO, FOLDER_IMAGE_PATH)
 
-        frame_count += 1  # Incrementa frame
+            cv2.imshow('Imagem WebCam', frame)
+
+            if cv2.waitKey(10) & 0XFF == ord('q'):
+                break
+
+            frame_count += 1  # Incrementa frame
 
     cap.release()
     cv2.destroyAllWindows()
